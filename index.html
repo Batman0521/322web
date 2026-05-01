@@ -20,11 +20,20 @@
     background: rgba(13,17,23,0.9); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     position: sticky; top: 0; z-index: 100;
-    display: flex; justify-content: center; gap: 36px;
-    padding: 16px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 40px;
   }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
   nav a { color: var(--gold); font-weight: 600; font-size: 14px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
   nav a:hover { opacity: 0.7; }
+  .nav-admin {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(240,180,41,0.1); border: 1px solid var(--border2);
+    color: var(--gold) !important; font-size: 13px; font-weight: 600;
+    padding: 7px 14px; border-radius: 8px; text-decoration: none;
+    transition: all 0.2s; letter-spacing: 0.03em;
+  }
+  .nav-admin:hover { background: rgba(240,180,41,0.2) !important; opacity: 1 !important; }
 
   .hero { background: var(--bg2); text-align: center; padding: 90px 40px; border-bottom: 1px solid var(--border); }
   .hero h1 { font-size: 48px; font-weight: 700; color: var(--gold); margin-bottom: 16px; letter-spacing: -0.02em; }
@@ -100,11 +109,12 @@
 <body>
 
 <nav>
-  <div id="menu-nav">
+  <div class="nav-links" id="menu-nav">
     <a href="#skills">Миний ур чадвар</a>
     <a href="#projects">Бүтээсэн төсөл</a>
     <a href="#contact">Холбоо барих</a>
   </div>
+  <a href="admin/index.html" class="nav-admin">⚙ Admin</a>
 </nav>
 
 <div class="hero">
