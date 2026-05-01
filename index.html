@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Миний Портфолио</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+    --gold: #f0b429; --gold2: #ffd166;
+    --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
+    --border: rgba(240,180,41,0.15); --border2: rgba(240,180,41,0.3);
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); }
+
+  nav {
+    background: rgba(13,17,23,0.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: center; gap: 36px;
+    padding: 16px 40px;
+  }
+  nav a { color: var(--gold); font-weight: 600; font-size: 14px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
+  nav a:hover { opacity: 0.7; }
+
+  .hero { background: var(--bg2); text-align: center; padding: 90px 40px; border-bottom: 1px solid var(--border); }
+  .hero h1 { font-size: 48px; font-weight: 700; color: var(--gold); margin-bottom: 16px; letter-spacing: -0.02em; }
+  .hero p { font-size: 16px; color: var(--text2); max-width: 480px; margin: 0 auto; line-height: 1.7; }
+
+  section { padding: 64px 40px; border-bottom: 1px solid var(--border); }
+  section h2 { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 40px; color: var(--text); }
+
+  .skills-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; max-width: 800px; margin: 0 auto; }
+  .skill-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 32px;
+    font-size: 15px; font-weight: 600; color: var(--gold);
+    transition: all 0.2s; cursor: default;
+  }
+  .skill-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+  .projects-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .project-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 32px; text-align: center;
+    transition: border-color 0.2s;
+  }
+  .project-card:hover { border-color: var(--gold2); }
+  .project-card h3 { color: var(--gold); font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .project-card p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+  .project-tag {
+    display: inline-block; margin-top: 12px;
+    background: rgba(240,180,41,0.1); color: var(--gold);
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 20px; border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .empty-msg { text-align: center; color: var(--text3); font-size: 14px; padding: 40px; }
+
+  .news-grid { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; }
+  .news-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; transition: border-color 0.2s; }
+  .news-card:hover { border-color: var(--gold2); }
+  .news-card h3 { color: var(--gold); font-size: 14px; font-weight: 700; margin-bottom: 8px; line-height: 1.5; }
+  .news-card p { color: var(--text2); font-size: 13px; line-height: 1.6; }
+  .news-date { font-size: 11px; color: var(--text3); margin-top: 10px; font-family: 'JetBrains Mono', monospace; }
+
+  .contact-form { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .contact-form label { font-size: 13px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .contact-form input, .contact-form textarea {
+    width: 100%; padding: 13px 16px;
+    background: transparent; border: 1.5px solid var(--gold);
+    border-radius: 8px; color: var(--text);
+    font-size: 14px; font-family: 'Space Grotesk', sans-serif; outline: none;
+    transition: border-color 0.2s;
+  }
+  .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold2); }
+  .contact-form textarea { min-height: 110px; resize: vertical; }
+  .contact-form button {
+    padding: 14px; background: var(--gold); color: #0d1117;
+    border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.05em; font-family: 'Space Grotesk', sans-serif;
+    transition: background 0.2s;
+  }
+  .contact-form button:hover { background: var(--gold2); }
+  .contact-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; text-align: center; margin-bottom: 4px; }
+  .alert-success { background: rgba(62,207,142,0.1); border: 1px solid rgba(62,207,142,0.3); color: #3ecf8e; }
+  .alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
+
+  footer { background: var(--bg2); border-top: 1px solid var(--border); text-align: center; padding: 20px; font-size: 13px; color: var(--gold); }
+
+  #menu-nav { display: contents; }
+  .loading-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div id="menu-nav">
+    <a href="#skills">Миний ур чадвар</a>
+    <a href="#projects">Бүтээсэн төсөл</a>
+    <a href="#contact">Холбоо барих</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Сайн уу! [Таны нэр]</h1>
+  <p>Таны ур чадвар, төслүүдийг танилцуулах миний вэб сайт.</p>
+</div>
+
+<section id="skills">
+  <h2>Миний Ур Чадварууд</h2>
+  <div class="skills-grid">
+    <div class="skill-card">HTML</div>
+    <div class="skill-card">CSS</div>
+    <div class="skill-card">JavaScript</div>
+    <div class="skill-card">React</div>
+    <div class="skill-card">Tailwind CSS</div>
+    <div class="skill-card">PHP</div>
+  </div>
+</section>
+
+<section id="projects">
+  <h2>Бүтээсэн төсөл</h2>
+  <div class="projects-list" id="projects-list">
+    <div class="empty-msg"><span class="loading-dot"></span> Ачааллаж байна...</div>
+  </div>
+</section>
+
+<section id="news" style="display:none">
+  <h2>Сүүлийн мэдээ</h2>
+  <div class="news-grid" id="news-list"></div>
+</section>
+
+<section id="contact">
+  <h2>Холбоо барих</h2>
+  <div id="contact-alert"></div>
+  <form class="contact-form" id="contact-form">
+    <div><label>Таны нэр:</label><input type="text" id="c-name" required></div>
+    <div><label>И-мэйл хаяг:</label><input type="email" id="c-email" required></div>
+    <div><label>Танилцуулга:</label><textarea id="c-msg" required></textarea></div>
+    <button type="submit" id="c-btn">ИЛГЭЭХ</button>
+  </form>
+</section>
+
+<footer>© 2025 танилцуулга вэб</footer>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, query, orderBy, where, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// =============================================
+// FIREBASE ТОХИРГОО — өөрийнхөө config-г оруулна
+// =============================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBF7BAITMEVML-g2he8zhffgypN_eO2bJ0",
+  authDomain: "batmanweb-56d17.firebaseapp.com",
+  projectId: "batmanweb-56d17",
+  storageBucket: "batmanweb-56d17.firebasestorage.app",
+  messagingSenderId: "769722062204",
+  appId: "1:769722062204:web:81fec7a6dc6cf715fd00f9",
+  measurementId: "G-22P00DYJE5"
+};
+// =============================================
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// --- Цэс ачаалах ---
+async function loadMenus() {
+  try {
+    const q = query(collection(db, "menus"), where("isActive","==",true), orderBy("order","asc"));
+    const snap = await getDocs(q);
+    if (snap.empty) return;
+    const nav = document.getElementById("menu-nav");
+    nav.innerHTML = "";
+    snap.forEach(doc => {
+      const m = doc.data();
+      const a = document.createElement("a");
+      a.href = m.url; a.textContent = m.name;
+      nav.appendChild(a);
+    });
+  } catch(e) { console.log("Цэс:", e.message); }
+}
+
+// --- Төслүүд ачаалах ---
+async function loadProjects() {
+  const wrap = document.getElementById("projects-list");
+  try {
+    const q = query(collection(db,"news"), where("category","==","Төсөл"), where("isPublished","==",true), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      wrap.innerHTML = '<div class="empty-msg">Одоогоор төсөл байхгүй байна</div>';
+      return;
+    }
+    wrap.innerHTML = "";
+    snap.forEach(doc => {
+      const p = doc.data();
+      wrap.innerHTML += `
+        <div class="project-card">
+          <h3>${p.title}</h3>
+          <p>${p.content}</p>
+          <span class="project-tag">${p.category}</span>
+        </div>`;
+    });
+  } catch(e) {
+    wrap.innerHTML = '<div class="empty-msg">Мэдээлэл ачааллахад алдаа гарлаа</div>';
+  }
+}
+
+// --- Мэдээ ачаалах ---
+async function loadNews() {
+  try {
+    const q = query(collection(db,"news"), where("category","==","Мэдээ"), where("isPublished","==",true), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    if (snap.empty) return;
+    const sec = document.getElementById("news");
+    const list = document.getElementById("news-list");
+    sec.style.display = "block"; list.innerHTML = "";
+    snap.forEach(doc => {
+      const n = doc.data();
+      const date = n.createdAt?.toDate?.()?.toLocaleDateString("mn-MN") || "";
+      list.innerHTML += `
+        <div class="news-card">
+          <h3>${n.title}</h3>
+          <p>${n.content.substring(0,100)}...</p>
+          <div class="news-date">${date}</div>
+        </div>`;
+    });
+  } catch(e) { console.log("Мэдээ:", e.message); }
+}
+
+// --- Холбоо барих ---
+document.getElementById("contact-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("c-btn");
+  const alert = document.getElementById("contact-alert");
+  const name = document.getElementById("c-name").value.trim();
+  const email = document.getElementById("c-email").value.trim();
+  const msg = document.getElementById("c-msg").value.trim();
+  btn.disabled = true; btn.textContent = "Илгээж байна...";
+  try {
+    await addDoc(collection(db,"contacts"), { name, email, message: msg, isRead: false, createdAt: serverTimestamp() });
+    alert.innerHTML = '<div class="alert alert-success">Таны мессеж амжилттай илгээгдлээ!</div>';
+    e.target.reset();
+  } catch(err) {
+    alert.innerHTML = '<div class="alert alert-error">Алдаа гарлаа. Дахин оролдоно уу.</div>';
+  }
+  btn.disabled = false; btn.textContent = "ИЛГЭЭХ";
+  setTimeout(() => alert.innerHTML = "", 4000);
+});
+
+loadMenus(); loadProjects(); loadNews();
+</script>
+</body>
+</html>

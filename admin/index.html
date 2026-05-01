@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Удирдлага</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f12; --surface: #17171c; --surface2: #1e1e26; --surface3: #252530;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+    --accent: #6c63ff; --accent2: #8b85ff;
+    --text: #e8e8f0; --text2: #9090a8; --text3: #5c5c70;
+    --green: #3ecf8e; --red: #f87171; --amber: #fbbf24; --info: #60a5fa;
+    --font: 'Space Grotesk', sans-serif; --mono: 'JetBrains Mono', monospace;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ===== LOGIN ===== */
+  #login-page {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .login-card {
+    width: 400px; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 16px; padding: 40px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 8px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: white;
+  }
+  .logo-name { font-size: 15px; font-weight: 600; }
+  .logo-sub { font-size: 11px; color: var(--text3); }
+  .login-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .login-sub { font-size: 14px; color: var(--text2); margin-bottom: 28px; }
+
+  /* ===== ADMIN LAYOUT ===== */
+  #admin-page { display: none; min-height: 100vh; display: none; }
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 220px; flex-shrink: 0; background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; inset: 0 auto 0 0; z-index: 100;
+  }
+  .sb-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .sb-logo { width: 28px; height: 28px; border-radius: 6px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+  .sb-brand { font-size: 13px; font-weight: 600; }
+  .sb-sub { font-size: 11px; color: var(--text3); }
+  .sb-nav { padding: 10px; flex: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 8px; margin: 10px 0 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; text-decoration: none; font-size: 13px; color: var(--text2); margin-bottom: 2px; cursor: pointer; transition: all 0.15s; user-select: none; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(108,99,255,0.15); color: var(--accent2); }
+  .sb-footer { padding: 12px; border-top: 1px solid var(--border); }
+  .user-row { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; }
+  .user-av { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: white; flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .user-role { font-size: 11px; color: var(--text3); }
+  .logout-btn { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 4px; transition: color 0.15s; }
+  .logout-btn:hover { color: var(--red); }
+
+  .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-size: 15px; font-weight: 600; }
+  .content { padding: 24px; flex: 1; }
+
+  /* ===== VIEWS ===== */
+  .view { display: none; }
+  .view.active { display: block; }
+  .page-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .page-hdr h2 { font-size: 17px; font-weight: 600; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; }
+  .stat-val { font-size: 28px; font-weight: 700; font-family: var(--mono); margin-bottom: 4px; }
+  .stat-sub { font-size: 12px; color: var(--text3); }
+
+  /* Cards & Tables */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .card-hdr { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+  .card-hdr a { font-size: 12px; color: var(--accent2); text-decoration: none; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--surface2); }
+  th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+  td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.15s; font-family: var(--font); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: var(--accent2); }
+  .btn-surface { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+  .btn-surface:hover { background: var(--surface3); }
+  .btn-danger { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+  /* Forms */
+  .form-group { margin-bottom: 15px; }
+  .form-label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 7px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 10px 13px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 7px; color: var(--text); font-family: var(--font); font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .form-select { appearance: none; cursor: pointer; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-green { background: rgba(62,207,142,0.12); color: var(--green); }
+  .badge-red { background: rgba(248,113,113,0.12); color: var(--red); }
+  .badge-amber { background: rgba(251,191,36,0.12); color: var(--amber); }
+  .badge-accent { background: rgba(108,99,255,0.15); color: var(--accent2); }
+
+  /* Alert */
+  .alert { padding: 11px 15px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+  .alert-success { background: rgba(62,207,142,0.1); border: 1px solid rgba(62,207,142,0.3); color: var(--green); }
+  .alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+
+  .empty { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .loading { text-align: center; padding: 30px; color: var(--text3); font-size: 13px; }
+
+  /* Toast */
+  #toaster { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 11px 15px; font-size: 13px; display: flex; align-items: center; gap: 9px; animation: slideIn 0.2s ease; min-width: 240px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+  .toast.ok { border-color: rgba(62,207,142,0.3); }
+  .toast.err { border-color: rgba(248,113,113,0.3); }
+  @keyframes slideIn { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Login form reuse */
+  .form-input-login {
+    width: 100%; padding: 11px 14px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 8px; color: var(--text); font-family: var(--font); font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-input-login:focus { border-color: var(--accent); }
+  .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: background 0.2s; }
+  .btn-login:hover { background: var(--accent2); }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      <div><div class="logo-name">AdminCMS</div><div class="logo-sub">Firebase + JS</div></div>
+    </div>
+    <div class="login-title">Нэвтрэх</div>
+    <div class="login-sub">Gmail-ийн бүртгэлээр нэвтэрнэ</div>
+    <div id="login-err" class="alert alert-error" style="display:none"></div>
+    <div class="form-group">
+      <label class="form-label">И-мэйл</label>
+      <input type="email" class="form-input-login" id="inp-email" placeholder="admin@gmail.com">
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label class="form-label">Нууц үг</label>
+      <input type="password" class="form-input-login" id="inp-pass" placeholder="••••••••">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Нэвтрэх →</button>
+    <div style="margin-top:14px;text-align:center">
+      <a href="../index.html" style="font-size:13px;color:var(--text3);text-decoration:none">← Нүүр хуудас руу буцах</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div id="admin-page">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-header">
+        <div class="sb-logo">A</div>
+        <div><div class="sb-brand">AdminCMS</div><div class="sb-sub">Портфолио</div></div>
+      </div>
+      <nav class="sb-nav">
+        <div class="nav-label">Ерөнхий</div>
+        <div class="nav-item active" onclick="showView('dashboard',this)">⊞ &nbsp;Дашбоард</div>
+        <div class="nav-label">Удирдах</div>
+        <div class="nav-item" onclick="showView('menus',this)">☰ &nbsp;Цэс удирдах</div>
+        <div class="nav-item" onclick="showView('news',this)">◉ &nbsp;Мэдээ / Төсөл</div>
+        <div class="nav-item" onclick="showView('contacts',this)">✉ &nbsp;Холбоо барих</div>
+      </nav>
+      <div class="sb-footer">
+        <div class="user-row">
+          <div class="user-av" id="user-av">А</div>
+          <div><div class="user-name" id="user-name">Ачааллаж байна</div><div class="user-role">Admin</div></div>
+          <button class="logout-btn" onclick="doLogout()">✕</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Дашбоард</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge badge-green">● Онлайн</span>
+          <a href="../index.html" target="_blank" class="btn btn-surface btn-sm">↗ Сайт</a>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="view active" id="view-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Цэс</div><div class="stat-val" id="s-menu">—</div><div class="stat-sub">Идэвхтэй</div></div>
+            <div class="stat-card"><div class="stat-label">Мэдээ / Төсөл</div><div class="stat-val" id="s-news">—</div><div class="stat-sub">Нийтлэгдсэн</div></div>
+            <div class="stat-card"><div class="stat-label">Мессеж</div><div class="stat-val" id="s-contact">—</div><div class="stat-sub">Нийт</div></div>
+            <div class="stat-card"><div class="stat-label">Уншаагүй</div><div class="stat-val" id="s-unread" style="color:var(--amber)">—</div><div class="stat-sub">Шинэ</div></div>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-hdr">Шуурхай үйлдэл</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px">
+                <div onclick="showView('menus',document.querySelectorAll('.nav-item')[1])" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+                  <div style="font-size:18px;margin-bottom:6px">☰</div>
+                  <div style="font-size:13px;font-weight:600">Цэс нэмэх</div>
+                  <div style="font-size:11px;color:var(--text3)">Навигаци</div>
+                </div>
+                <div onclick="showView('news',document.querySelectorAll('.nav-item')[2])" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+                  <div style="font-size:18px;margin-bottom:6px">◉</div>
+                  <div style="font-size:13px;font-weight:600">Мэдээ нэмэх</div>
+                  <div style="font-size:11px;color:var(--text3)">Агуулга</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr">Сүүлийн мессежүүд <span onclick="showView('contacts',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer;color:var(--accent2);font-size:12px">Бүгд</span></div>
+              <div id="dash-contacts"><div class="loading">Ачааллаж байна...</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MENUS -->
+        <div class="view" id="view-menus">
+          <div class="page-hdr"><h2>Цэс удирдах</h2><button class="btn btn-accent" onclick="openMenuForm()">＋ Нэмэх</button></div>
+          <div id="menu-alert"></div>
+          <div id="menu-form-wrap" style="display:none;margin-bottom:20px">
+            <div class="card"><div class="card-hdr" id="menu-form-title">Шинэ цэс</div>
+            <div style="padding:18px">
+              <input type="hidden" id="menu-edit-id">
+              <div class="form-group"><label class="form-label">Нэр *</label><input class="form-input" id="m-name" placeholder="Нүүр хуудас"></div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">URL *</label><input class="form-input" id="m-url" placeholder="#skills"></div>
+                <div class="form-group"><label class="form-label">Дараалал</label><input class="form-input" type="number" id="m-order" value="1" min="1"></div>
+              </div>
+              <div class="form-group" style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" id="m-active" checked style="width:auto">
+                <label for="m-active" style="margin:0;font-size:13px;color:var(--text2);cursor:pointer">Идэвхтэй</label>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button class="btn btn-accent" onclick="saveMenu()">Хадгалах</button>
+                <button class="btn btn-surface" onclick="closeMenuForm()">Болих</button>
+              </div>
+            </div></div>
+          </div>
+          <div class="card" id="menu-table"><div class="loading">Ачааллаж байна...</div></div>
+        </div>
+
+        <!-- NEWS -->
+        <div class="view" id="view-news">
+          <div class="page-hdr"><h2>Мэдээ / Төсөл</h2><button class="btn btn-accent" onclick="openNewsForm()">＋ Нэмэх</button></div>
+          <div id="news-alert"></div>
+          <div id="news-form-wrap" style="display:none;margin-bottom:20px">
+            <div class="card"><div class="card-hdr" id="news-form-title">Шинэ мэдээ</div>
+            <div style="padding:18px">
+              <input type="hidden" id="news-edit-id">
+              <div class="form-group"><label class="form-label">Гарчиг *</label><input class="form-input" id="n-title" placeholder="Мэдээний гарчиг"></div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Ангилал</label>
+                  <select class="form-select" id="n-cat">
+                    <option>Мэдээ</option><option>Төсөл</option><option>Зар</option><option>Блог</option>
+                  </select>
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end;gap:8px;padding-bottom:1px">
+                  <input type="checkbox" id="n-pub" checked style="width:auto">
+                  <label for="n-pub" style="margin:0;font-size:13px;color:var(--text2);cursor:pointer">Нийтлэх</label>
+                </div>
+              </div>
+              <div class="form-group"><label class="form-label">Агуулга *</label><textarea class="form-textarea" id="n-content" placeholder="Агуулгаа энд бичнэ үү..."></textarea></div>
+              <div style="display:flex;gap:10px">
+                <button class="btn btn-accent" onclick="saveNews()">Хадгалах</button>
+                <button class="btn btn-surface" onclick="closeNewsForm()">Болих</button>
+              </div>
+            </div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="news-filter">
+            <button class="btn btn-sm btn-accent" onclick="filterNews('')">Бүгд</button>
+            <button class="btn btn-sm btn-surface" onclick="filterNews('Мэдээ')">Мэдээ</button>
+            <button class="btn btn-sm btn-surface" onclick="filterNews('Төсөл')">Төсөл</button>
+            <button class="btn btn-sm btn-surface" onclick="filterNews('Зар')">Зар</button>
+            <button class="btn btn-sm btn-surface" onclick="filterNews('Блог')">Блог</button>
+          </div>
+          <div class="card" id="news-table"><div class="loading">Ачааллаж байна...</div></div>
+        </div>
+
+        <!-- CONTACTS -->
+        <div class="view" id="view-contacts">
+          <div class="page-hdr">
+            <h2>Холбоо барих мессежүүд</h2>
+            <button class="btn btn-surface btn-sm" onclick="markAllRead()">Бүгдийг уншсан болгох</button>
+          </div>
+          <div class="card" id="contacts-table"><div class="loading">Ачааллаж байна...</div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toaster"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc,
+  query, orderBy, where, serverTimestamp, getCountFromServer }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// =============================================
+// FIREBASE ТОХИРГОО — өөрийнхөө config-г оруулна
+// =============================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBF7BAITMEVML-g2he8zhffgypN_eO2bJ0",
+  authDomain: "batmanweb-56d17.firebaseapp.com",
+  projectId: "batmanweb-56d17",
+  storageBucket: "batmanweb-56d17.firebasestorage.app",
+  messagingSenderId: "769722062204",
+  appId: "1:769722062204:web:81fec7a6dc6cf715fd00f9",
+  measurementId: "G-22P00DYJE5"
+};
+// =============================================
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ===== AUTH =====
+window.doLogin = async () => {
+  const email = document.getElementById("inp-email").value;
+  const pass  = document.getElementById("inp-pass").value;
+  const err   = document.getElementById("login-err");
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.style.display = "block";
+    err.textContent = "И-мэйл эсвэл нууц үг буруу байна";
+    setTimeout(() => err.style.display = "none", 3000);
+  }
+};
+document.getElementById("inp-pass").addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
+
+window.doLogout = async () => {
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("admin-page").style.display = "block";
+    const name = user.email.split("@")[0];
+    document.getElementById("user-name").textContent = name;
+    document.getElementById("user-av").textContent = name[0].toUpperCase();
+    loadDashboard(); loadMenus(); loadNews(""); loadContacts();
+  } else {
+    document.getElementById("login-page").style.display = "flex";
+    document.getElementById("admin-page").style.display = "none";
+  }
+});
+
+// ===== VIEWS =====
+window.showView = (name, el) => {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("view-"+name).classList.add("active");
+  if(el) el.classList.add("active");
+  const titles = {dashboard:"Дашбоард",menus:"Цэс удирдах",news:"Мэдээ / Төсөл",contacts:"Холбоо барих"};
+  document.getElementById("topbar-title").textContent = titles[name]||name;
+};
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
+  try {
+    const [menuSnap, newsSnap, contactSnap, unreadSnap] = await Promise.all([
+      getCountFromServer(collection(db,"menus")),
+      getCountFromServer(query(collection(db,"news"), where("isPublished","==",true))),
+      getCountFromServer(collection(db,"contacts")),
+      getCountFromServer(query(collection(db,"contacts"), where("isRead","==",false)))
+    ]);
+    document.getElementById("s-menu").textContent = menuSnap.data().count;
+    document.getElementById("s-news").textContent = newsSnap.data().count;
+    document.getElementById("s-contact").textContent = contactSnap.data().count;
+    document.getElementById("s-unread").textContent = unreadSnap.data().count;
+  } catch(e) {}
+
+  try {
+    const q = query(collection(db,"contacts"), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    const wrap = document.getElementById("dash-contacts");
+    if(snap.empty) { wrap.innerHTML = '<div class="empty">Мессеж байхгүй</div>'; return; }
+    let html = "";
+    snap.forEach(d => {
+      const c = d.data();
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0;text-transform:uppercase">${c.name[0]}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500">${c.name}</div>
+          <div style="font-size:12px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.message.substring(0,40)}...</div>
+        </div>
+        ${!c.isRead ? '<span class="badge badge-amber">Шинэ</span>' : ''}
+      </div>`;
+    });
+    wrap.innerHTML = html;
+  } catch(e) {}
+}
+
+// ===== MENUS =====
+let allMenus = [];
+async function loadMenus() {
+  const wrap = document.getElementById("menu-table");
+  try {
+    const q = query(collection(db,"menus"), orderBy("order","asc"));
+    const snap = await getDocs(q);
+    allMenus = [];
+    snap.forEach(d => allMenus.push({id:d.id, ...d.data()}));
+    renderMenuTable();
+  } catch(e) { wrap.innerHTML = '<div class="empty">Алдаа гарлаа</div>'; }
+}
+function renderMenuTable() {
+  const wrap = document.getElementById("menu-table");
+  if(!allMenus.length) { wrap.innerHTML = '<div class="empty">Цэс байхгүй байна</div>'; return; }
+  let rows = allMenus.map(m => `<tr>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${m.id.substring(0,8)}...</td>
+    <td style="font-weight:500">${m.name}</td>
+    <td style="color:var(--info);font-size:12px">${m.url}</td>
+    <td>${m.order}</td>
+    <td>${m.isActive ? '<span class="badge badge-green">● Идэвхтэй</span>' : '<span class="badge badge-red">● Идэвхгүй</span>'}</td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-sm btn-surface" onclick="editMenu('${m.id}')">Засах</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteMenu('${m.id}','${m.name}')">Устгах</button>
+    </div></td>
+  </tr>`).join("");
+  wrap.innerHTML = `<table><thead><tr><th>ID</th><th>Нэр</th><th>URL</th><th>Дараалал</th><th>Төлөв</th><th>Үйлдэл</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+window.openMenuForm = () => {
+  document.getElementById("menu-edit-id").value = "";
+  document.getElementById("m-name").value = "";
+  document.getElementById("m-url").value = "";
+  document.getElementById("m-order").value = allMenus.length + 1;
+  document.getElementById("m-active").checked = true;
+  document.getElementById("menu-form-title").textContent = "Шинэ цэс нэмэх";
+  document.getElementById("menu-form-wrap").style.display = "block";
+};
+window.closeMenuForm = () => document.getElementById("menu-form-wrap").style.display = "none";
+window.editMenu = (id) => {
+  const m = allMenus.find(x => x.id === id);
+  if(!m) return;
+  document.getElementById("menu-edit-id").value = m.id;
+  document.getElementById("m-name").value = m.name;
+  document.getElementById("m-url").value = m.url;
+  document.getElementById("m-order").value = m.order;
+  document.getElementById("m-active").checked = m.isActive;
+  document.getElementById("menu-form-title").textContent = "Цэс засах";
+  document.getElementById("menu-form-wrap").style.display = "block";
+};
+window.saveMenu = async () => {
+  const name = document.getElementById("m-name").value.trim();
+  const url  = document.getElementById("m-url").value.trim();
+  const order = parseInt(document.getElementById("m-order").value) || 1;
+  const isActive = document.getElementById("m-active").checked;
+  const editId = document.getElementById("menu-edit-id").value;
+  if(!name || !url) { toast("Нэр болон URL заавал оруулна уу","err"); return; }
+  try {
+    if(editId) {
+      await updateDoc(doc(db,"menus",editId), {name,url,order,isActive});
+      toast('"'+name+'" цэс засагдлаа','ok');
+    } else {
+      await addDoc(collection(db,"menus"), {name,url,order,isActive,createdAt:serverTimestamp()});
+      toast('"'+name+'" цэс нэмэгдлээ','ok');
+    }
+    closeMenuForm(); await loadMenus(); loadDashboard();
+  } catch(e) { toast("Алдаа: "+e.message,"err"); }
+};
+window.deleteMenu = async (id, name) => {
+  if(!confirm('"'+name+'" цэсийг устгах уу?')) return;
+  try {
+    await deleteDoc(doc(db,"menus",id));
+    toast('"'+name+'" устгагдлаа','ok');
+    await loadMenus(); loadDashboard();
+  } catch(e) { toast("Алдаа","err"); }
+};
+
+// ===== NEWS =====
+let allNews = [], newsFilter = "";
+async function loadNews(filter) {
+  newsFilter = filter;
+  const wrap = document.getElementById("news-table");
+  wrap.innerHTML = '<div class="loading">Ачааллаж байна...</div>';
+  try {
+    let q = query(collection(db,"news"), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    allNews = [];
+    snap.forEach(d => allNews.push({id:d.id, ...d.data()}));
+    renderNewsTable();
+  } catch(e) { wrap.innerHTML = '<div class="empty">Алдаа гарлаа</div>'; }
+}
+window.filterNews = (cat) => {
+  newsFilter = cat;
+  document.querySelectorAll("#news-filter .btn").forEach(b => {
+    b.className = "btn btn-sm btn-surface";
+  });
+  event.target.className = "btn btn-sm btn-accent";
+  renderNewsTable();
+};
+function renderNewsTable() {
+  const wrap = document.getElementById("news-table");
+  const items = newsFilter ? allNews.filter(n => n.category === newsFilter) : allNews;
+  if(!items.length) { wrap.innerHTML = '<div class="empty">Мэдээ байхгүй байна</div>'; return; }
+  let rows = items.map(n => {
+    const date = n.createdAt?.toDate?.()?.toLocaleDateString("mn-MN") || "—";
+    return `<tr>
+      <td style="font-weight:500;max-width:160px">${n.title}</td>
+      <td><span class="badge badge-accent">${n.category}</span></td>
+      <td style="color:var(--text2);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.content?.substring(0,60)}...</td>
+      <td>${n.isPublished ? '<span class="badge badge-green">● Нийтлэгдсэн</span>' : '<span class="badge badge-amber">● Ноорог</span>'}</td>
+      <td style="font-size:12px;color:var(--text3);font-family:var(--mono)">${date}</td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-surface" onclick="editNews('${n.id}')">Засах</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteNews('${n.id}','${n.title}')">Устгах</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+  wrap.innerHTML = `<table><thead><tr><th>Гарчиг</th><th>Ангилал</th><th>Агуулга</th><th>Төлөв</th><th>Огноо</th><th>Үйлдэл</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+window.openNewsForm = () => {
+  document.getElementById("news-edit-id").value = "";
+  document.getElementById("n-title").value = "";
+  document.getElementById("n-cat").value = "Мэдээ";
+  document.getElementById("n-pub").checked = true;
+  document.getElementById("n-content").value = "";
+  document.getElementById("news-form-title").textContent = "Шинэ мэдээ нэмэх";
+  document.getElementById("news-form-wrap").style.display = "block";
+};
+window.closeNewsForm = () => document.getElementById("news-form-wrap").style.display = "none";
+window.editNews = (id) => {
+  const n = allNews.find(x => x.id === id);
+  if(!n) return;
+  document.getElementById("news-edit-id").value = n.id;
+  document.getElementById("n-title").value = n.title;
+  document.getElementById("n-cat").value = n.category;
+  document.getElementById("n-pub").checked = n.isPublished;
+  document.getElementById("n-content").value = n.content;
+  document.getElementById("news-form-title").textContent = "Мэдээ засах";
+  document.getElementById("news-form-wrap").style.display = "block";
+};
+window.saveNews = async () => {
+  const title   = document.getElementById("n-title").value.trim();
+  const category = document.getElementById("n-cat").value;
+  const isPublished = document.getElementById("n-pub").checked;
+  const content = document.getElementById("n-content").value.trim();
+  const editId  = document.getElementById("news-edit-id").value;
+  if(!title || !content) { toast("Гарчиг болон агуулга заавал оруулна уу","err"); return; }
+  try {
+    if(editId) {
+      await updateDoc(doc(db,"news",editId), {title,category,isPublished,content});
+      toast('"'+title+'" засагдлаа','ok');
+    } else {
+      await addDoc(collection(db,"news"), {title,category,isPublished,content,createdAt:serverTimestamp()});
+      toast('"'+title+'" нэмэгдлээ','ok');
+    }
+    closeNewsForm(); await loadNews(newsFilter); loadDashboard();
+  } catch(e) { toast("Алдаа: "+e.message,"err"); }
+};
+window.deleteNews = async (id, title) => {
+  if(!confirm('"'+title+'" устгах уу?')) return;
+  try {
+    await deleteDoc(doc(db,"news",id));
+    toast('"'+title+'" устгагдлаа','ok');
+    await loadNews(newsFilter); loadDashboard();
+  } catch(e) { toast("Алдаа","err"); }
+};
+
+// ===== CONTACTS =====
+let allContacts = [];
+async function loadContacts() {
+  const wrap = document.getElementById("contacts-table");
+  try {
+    const q = query(collection(db,"contacts"), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    allContacts = [];
+    snap.forEach(d => allContacts.push({id:d.id, ...d.data()}));
+    renderContacts();
+  } catch(e) { wrap.innerHTML = '<div class="empty">Алдаа гарлаа</div>'; }
+}
+function renderContacts() {
+  const wrap = document.getElementById("contacts-table");
+  if(!allContacts.length) { wrap.innerHTML = '<div class="empty">Мессеж байхгүй байна</div>'; return; }
+  let rows = allContacts.map(c => {
+    const date = c.createdAt?.toDate?.()?.toLocaleDateString("mn-MN") || "—";
+    return `<tr style="${!c.isRead ? 'background:rgba(108,99,255,0.04)' : ''}">
+      <td style="font-weight:${!c.isRead?'600':'400'}">${c.name}</td>
+      <td style="color:var(--info);font-size:12px">${c.email}</td>
+      <td style="color:var(--text2);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.message?.substring(0,60)}...</td>
+      <td style="font-size:12px;color:var(--text3);font-family:var(--mono)">${date}</td>
+      <td>${!c.isRead ? '<span class="badge badge-amber">● Шинэ</span>' : '<span style="font-size:12px;color:var(--text3)">Уншсан</span>'}</td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-surface" onclick="viewContact('${c.id}')">Харах</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteContact('${c.id}')">Устгах</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+  wrap.innerHTML = `<table><thead><tr><th>Нэр</th><th>И-мэйл</th><th>Мессеж</th><th>Огноо</th><th>Төлөв</th><th>Үйлдэл</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+window.viewContact = async (id) => {
+  const c = allContacts.find(x => x.id === id);
+  if(!c) return;
+  alert(`Нэр: ${c.name}\nИ-мэйл: ${c.email}\n\n${c.message}`);
+  if(!c.isRead) {
+    await updateDoc(doc(db,"contacts",id), {isRead:true});
+    await loadContacts(); loadDashboard();
+  }
+};
+window.deleteContact = async (id) => {
+  if(!confirm('Энэ мессежийг устгах уу?')) return;
+  await deleteDoc(doc(db,"contacts",id));
+  toast('Мессеж устгагдлаа','ok');
+  await loadContacts(); loadDashboard();
+};
+window.markAllRead = async () => {
+  const unread = allContacts.filter(c => !c.isRead);
+  await Promise.all(unread.map(c => updateDoc(doc(db,"contacts",c.id), {isRead:true})));
+  toast('Бүгд уншсан болгогдлоо','ok');
+  await loadContacts(); loadDashboard();
+};
+
+// ===== TOAST =====
+window.toast = (msg, type="ok") => {
+  const t = document.getElementById("toaster");
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.innerHTML = `<span style="color:${type==='ok'?'var(--green)':'var(--red)'};font-size:14px">${type==='ok'?'✓':'✕'}</span> ${msg}`;
+  t.appendChild(el);
+  setTimeout(() => { el.style.opacity="0"; el.style.transform="translateX(16px)"; el.style.transition="all 0.3s"; setTimeout(()=>el.remove(),300); }, 3000);
+};
+</script>
+</body>
+</html>
