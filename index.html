@@ -3,137 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Удирдлага</title>
-    <link rel="stylesheet" href="admin.css">
+    <title>Миний Портфолио</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts & FontAwesome icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Login Form -->
-    <div id="login-form" class="login-container" style="display: none;">
-        <div class="login-box">
-            <h1>Admin Нэвтрэлт</h1>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Имэйл" required>
-                <input type="password" id="loginPassword" placeholder="Нууц үг" required>
-                <button type="submit" class="btn-primary">Нэвтрэх</button>
-            </form>
-            <p id="loginError" style="color: red; display: none;"></p>
-        </div>
-    </div>
-
-    <!-- Admin Dashboard -->
-    <div id="admin-content" style="display: none;">
-        <header class="admin-header">
-            <h1>Admin Удирдлага</h1>
-            <button id="logoutBtn" class="btn-danger">Гарах</button>
-        </header>
-
-        <div class="admin-container">
-            <!-- Navigation Tabs -->
-            <nav class="admin-nav">
-                <button class="tab-btn active" data-tab="settings">Сайтын Тохиргоо</button>
-                <button class="tab-btn" data-tab="skills">Ур чадварууд</button>
-                <button class="tab-btn" data-tab="projects">Төслүүд</button>
-                <button class="tab-btn" data-tab="courses">Хичээлүүд</button>
-            </nav>
-
-            <!-- Settings Tab -->
-            <div id="settings" class="tab-content active">
-                <h2>Сайтын Тохиргоо</h2>
-                <form id="settings-form">
-                    <div class="form-group">
-                        <label>Нүүрэн хуудасны гарчиг</label>
-                        <input type="text" id="heroTitle" placeholder="Жишээ: Сайн уу, би Bat-Ochir">
-                    </div>
-                    <div class="form-group">
-                        <label>Дэд гарчиг</label>
-                        <input type="text" id="heroSubtitle" placeholder="Жишээ: Вэб хөгжүүлэгч">
-                    </div>
-                    <div class="form-group">
-                        <label>CV-ийн URL</label>
-                        <input type="url" id="cvUrl" placeholder="https://...">
-                    </div>
-                    <div class="form-group">
-                        <label>Footer текст</label>
-                        <input type="text" id="footerText" placeholder="© 2026 Bat-Ochir Portfolio">
-                    </div>
-                    <button type="submit" class="btn-primary">Хадгалах</button>
-                </form>
-            </div>
-
-            <!-- Skills Tab -->
-            <div id="skills" class="tab-content">
-                <h2>Ур чадварууд</h2>
-                <form id="skills-form">
-                    <div class="form-group">
-                        <label>Ур чадварын нэр</label>
-                        <input type="text" id="skillName" placeholder="Жишээ: React, JavaScript" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Icon (Emoji эсвэл Unicode)</label>
-                        <input type="text" id="skillIcon" placeholder="🔥 эсвэл ⭐" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Түвшин</label>
-                        <select id="skillLevel" required>
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-primary">Нэмэх</button>
-                </form>
-                <div id="skills-list" class="items-list"></div>
-            </div>
-
-            <!-- Projects Tab -->
-            <div id="projects" class="tab-content">
-                <h2>Төслүүд</h2>
-                <form id="projects-form">
-                    <div class="form-group">
-                        <label>Төслийн нэр</label>
-                        <input type="text" id="projectTitle" placeholder="Төслийн нэр" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Товч тайлбар</label>
-                        <textarea id="projectDesc" placeholder="Төслийн тайлбар" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Төслийн зураг URL</label>
-                        <input type="url" id="projectImage" placeholder="https://..." required>
-                    </div>
-                    <div class="form-group">
-                        <label>Технологи</label>
-                        <input type="text" id="projectTech" placeholder="React, Firebase, etc." required>
-                    </div>
-                    <div class="form-group">
-                        <label>GitHub URL</label>
-                        <input type="url" id="projectGithub" placeholder="https://github.com/...">
-                    </div>
-                    <button type="submit" class="btn-primary">Нэмэх</button>
-                </form>
-                <div id="projects-list" class="items-list"></div>
-            </div>
-
-            <!-- Courses Tab -->
-            <div id="courses" class="tab-content">
-                <h2>Хичээлүүд</h2>
-                <form id="courses-form">
-                    <div class="form-group">
-                        <label>Хичээлийн нэр</label>
-                        <input type="text" id="courseName" placeholder="Жишээ: Web Development" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Семестр</label>
-                        <input type="text" id="courseSemester" placeholder="Жишээ: 2024 Хаврын" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Нэмэх</button>
-                </form>
-                <div id="courses-list" class="items-list"></div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Bat-Ochir.<span>dev</span></div>
+            <ul id="nav-links" class="nav-links">
+                <li><a href="#home" class="nav-link">Нүүр</a></li>
+                <li><a href="#skills" class="nav-link">Ур чадвар</a></li>
+                <li><a href="#projects" class="nav-link">Төслүүд</a></li>
+                <li><a href="#courses" class="nav-link">Хичээлүүд</a></li>
+                <li><a href="admin/" class="nav-link admin-link">Admin</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <script type="module" src="admin.js"></script>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 id="hero-title" class="hero-title">Сайн уу, би Bat-Ochir</h1>
+                <p id="hero-subtitle" class="hero-subtitle">Вэб хөгжүүлэгч | Оюутан | Сонирхогч</p>
+                <p class="hero-description">Орчин үеийн веб технологийг ашиглан сонирхолтой төслүүдийг хийж байна</p>
+                <div class="hero-btns">
+                    <a href="#projects" class="btn btn-primary">
+                        <i class="fas fa-arrow-down"></i> Миний ажлууд
+                    </a>
+                    <a href="#" id="cv-link" class="btn btn-outline" target="_blank">
+                        <i class="fas fa-file-download"></i> CV үзэх
+                    </a>
+                </div>
+            </div>
+            <div class="hero-socials">
+                <a href="https://github.com" target="_blank" class="social-link" title="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" class="social-link" title="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="mailto:email@example.com" class="social-link" title="Email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span></span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">Миний Талаар</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p id="about-description" class="about-desc">
+                        Би веб хөгжүүлэгч бөгөөд JavaScript, React, HTML, CSS-г сайн мэддэг. 
+                        Өрөвсөн ба intuitive дизайнтай вэб хэрэглээ үүсгэхэд өндөр ур чадвартай.
+                    </p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3>100+</h3>
+                            <p>Бүрэлдүүлэх цаг</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>50+</h3>
+                            <p>Хүлээцэлтэй төсэл</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>2+</h3>
+                            <p>Жилийн туршлага</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills">
+        <div class="container">
+            <h2 class="section-title">Ур чадварууд</h2>
+            <div id="skills-container" class="grid-container"></div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
+        <div class="container">
+            <h2 class="section-title">Миний Төслүүд</h2>
+            <div id="projects-container" class="projects-grid"></div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="courses">
+        <div class="container">
+            <h2 class="section-title">Хичээлийн Явц</h2>
+            <div id="courses-container" class="courses-grid"></div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Холбоо Барих</h2>
+            <div class="contact-content">
+                <p>Аливаа асуулт эсвэл сайтаа сайжруулахаар сайн дурын үе шатанд барилцаарай!</p>
+                <div class="contact-links">
+                    <a href="mailto:batochirhvrelbat229@gmail.com" class="contact-link">
+                        <i class="fas fa-envelope"></i> Email илгээх
+                    </a>
+                    <a href="https://github.com/Batman0521" target="_blank" class="contact-link">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p id="footer-text">© 2026 Bat-Ochir Portfolio. Бүх эрх хуулиар хамгаалагдсан.</p>
+            <div class="footer-links">
+                <a href="#home">Нүүр</a>
+                <a href="#skills">Ур чадвар</a>
+                <a href="#projects">Төслүүд</a>
+                <a href="#courses">Хичээлүүд</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
