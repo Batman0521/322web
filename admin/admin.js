@@ -1,13 +1,25 @@
-import { updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// Site Settings-ийг шинэчлэх
-const settingsForm = document.getElementById('settings-form');
-settingsForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const ref = doc(db, "siteSettings", "main");
-    await updateDoc(ref, {
-        heroTitle: document.getElementById('set-title').value,
-        heroSubtitle: document.getElementById('set-subtitle').value
-    });
-    alert("Тохиргоо хадгалагдлаа!");
+const auth = getAuth();
+
+// 1. Нэвтрэх функц (Form ашиглан дуудаж болно)
+async function login(email, password) {
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log("Амжилттай нэвтэрлээ");
+    } catch (error) {
+        alert("Нэвтрэхэд алдаа гарлаа: " + error.message);
+    }
+}
+
+// 2. Нэвтрээгүй бол Admin-аас хөөх эсвэл контентыг нуух
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("Admin нэвтэрсэн байна");
+        document.getElementById('admin-content').style.display = 'block';
+        document.getElementById('login-form').style.display = 'none';
+    } else {
+        document.getElementById('admin-content').style.display = 'none';
+        document.getElementById('login-form').style.display = 'block';
+    }
 });
