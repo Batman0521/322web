@@ -3,57 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Миний Портфолио</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Google Fonts & FontAwesome icons -->
+    <title>Admin Удирдлага</title>
+    <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Login Form -->
+    <div id="login-form" class="login-container" style="display: none;">
+        <div class="login-box">
+            <h1>Admin Нэвтрэлт</h1>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Имэйл" required>
+                <input type="password" id="loginPassword" placeholder="Нууц үг" required>
+                <button type="submit" class="btn-primary">Нэвтрэх</button>
+            </form>
+            <p id="loginError" style="color: red; display: none;"></p>
+        </div>
+    </div>
 
-    <nav>
-        <div class="logo">Bat-Ochir.<span>dev</span></div>
-        <ul id="nav-links">
-            <li><a href="#home">Нүүр</a></li>
-            <li><a href="#skills">Ур чадвар</a></li>
-            <li><a href="#projects">Төслүүд</a></li>
-            <li><a href="#courses">Хичээлүүд</a></li>
-        </ul>
-    </nav>
+    <!-- Admin Dashboard -->
+    <div id="admin-content" style="display: none;">
+        <header class="admin-header">
+            <h1>Admin Удирдлага</h1>
+            <button id="logoutBtn" class="btn-danger">Гарах</button>
+        </header>
 
-    <!-- Hero -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1 id="hero-title">Сайн уу, би Bat-Ochir</h1>
-            <p id="hero-subtitle">Вэб хөгжүүлэгч, Оюутан</p>
-            <div class="hero-btns">
-                <a href="#projects" class="btn">Миний ажлууд</a>
-                <a href="#" id="cv-link" class="btn btn-outline" target="_blank">CV үзэх</a>
+        <div class="admin-container">
+            <!-- Navigation Tabs -->
+            <nav class="admin-nav">
+                <button class="tab-btn active" data-tab="settings">Сайтын Тохиргоо</button>
+                <button class="tab-btn" data-tab="skills">Ур чадварууд</button>
+                <button class="tab-btn" data-tab="projects">Төслүүд</button>
+                <button class="tab-btn" data-tab="courses">Хичээлүүд</button>
+            </nav>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content active">
+                <h2>Сайтын Тохиргоо</h2>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label>Нүүрэн хуудасны гарчиг</label>
+                        <input type="text" id="heroTitle" placeholder="Жишээ: Сайн уу, би Bat-Ochir">
+                    </div>
+                    <div class="form-group">
+                        <label>Дэд гарчиг</label>
+                        <input type="text" id="heroSubtitle" placeholder="Жишээ: Вэб хөгжүүлэгч">
+                    </div>
+                    <div class="form-group">
+                        <label>CV-ийн URL</label>
+                        <input type="url" id="cvUrl" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Footer текст</label>
+                        <input type="text" id="footerText" placeholder="© 2026 Bat-Ochir Portfolio">
+                    </div>
+                    <button type="submit" class="btn-primary">Хадгалах</button>
+                </form>
+            </div>
+
+            <!-- Skills Tab -->
+            <div id="skills" class="tab-content">
+                <h2>Ур чадварууд</h2>
+                <form id="skills-form">
+                    <div class="form-group">
+                        <label>Ур чадварын нэр</label>
+                        <input type="text" id="skillName" placeholder="Жишээ: React, JavaScript" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon (Emoji эсвэл Unicode)</label>
+                        <input type="text" id="skillIcon" placeholder="🔥 эсвэл ⭐" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Түвшин</label>
+                        <select id="skillLevel" required>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Нэмэх</button>
+                </form>
+                <div id="skills-list" class="items-list"></div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects" class="tab-content">
+                <h2>Төслүүд</h2>
+                <form id="projects-form">
+                    <div class="form-group">
+                        <label>Төслийн нэр</label>
+                        <input type="text" id="projectTitle" placeholder="Төслийн нэр" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Товч тайлбар</label>
+                        <textarea id="projectDesc" placeholder="Төслийн тайлбар" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Төслийн зураг URL</label>
+                        <input type="url" id="projectImage" placeholder="https://..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Технологи</label>
+                        <input type="text" id="projectTech" placeholder="React, Firebase, etc." required>
+                    </div>
+                    <div class="form-group">
+                        <label>GitHub URL</label>
+                        <input type="url" id="projectGithub" placeholder="https://github.com/...">
+                    </div>
+                    <button type="submit" class="btn-primary">Нэмэх</button>
+                </form>
+                <div id="projects-list" class="items-list"></div>
+            </div>
+
+            <!-- Courses Tab -->
+            <div id="courses" class="tab-content">
+                <h2>Хичээлүүд</h2>
+                <form id="courses-form">
+                    <div class="form-group">
+                        <label>Хичээлийн нэр</label>
+                        <input type="text" id="courseName" placeholder="Жишээ: Web Development" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Семестр</label>
+                        <input type="text" id="courseSemester" placeholder="Жишээ: 2024 Хаврын" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Нэмэх</button>
+                </form>
+                <div id="courses-list" class="items-list"></div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Skills -->
-    <section id="skills">
-        <h2 class="section-title">Ур чадварууд</h2>
-        <div id="skills-container" class="grid-container"></div>
-    </section>
-
-    <!-- Projects -->
-    <section id="projects">
-        <h2 class="section-title">Миний төслүүд</h2>
-        <div id="projects-container" class="grid-container"></div>
-    </section>
-
-    <!-- Courses -->
-    <section id="courses">
-        <h2 class="section-title">Хичээлийн явц</h2>
-        <div id="courses-container"></div>
-    </section>
-
-    <footer>
-        <p id="footer-text">© 2026 Bat-Ochir Portfolio</p>
-    </footer>
-
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="admin.js"></script>
 </body>
 </html>

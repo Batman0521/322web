@@ -2,26 +2,141 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Удирдах хэсэг</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-    <h1>Удирдах хэсэг</h1>
+    <!-- Нэвтрэх форм -->
+    <div id="login-form" class="login-container" style="display: none;">
+        <div class="login-box">
+            <h1>Admin Нэвтрэлт</h1>
+            <form id="form-login">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Нууц үг" required>
+                <button type="submit">Нэвтрэх</button>
+            </form>
+            <p id="login-error" class="error"></p>
+        </div>
+    </div>
 
-    <!-- Ур чадвар нэмэх хэсэг -->
-    <section>
-        <h2>Шинэ Skill нэмэх</h2>
-        <form id="add-skill-form">
-            <input type="text" id="skill-name" placeholder="Skill-ийн нэр (Жишээ: React)" required>
-            <input type="text" id="skill-icon" placeholder="Icon (Emoji эсвэл Class)" required>
-            <select id="skill-level">
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-            </select>
-            <button type="submit">Хадгалах</button>
-        </form>
-    </section>
+    <!-- Admin контент -->
+    <div id="admin-content" style="display: none;">
+        <nav class="admin-nav">
+            <div class="logo">Admin Panel</div>
+            <button id="logout-btn" class="btn-logout">Гарах</button>
+        </nav>
+
+        <div class="admin-container">
+            <!-- Таб сонголт -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="settings">⚙️ Сайтын Тохиргоо</button>
+                <button class="tab-btn" data-tab="skills">💼 Ур чадварууд</button>
+                <button class="tab-btn" data-tab="projects">🚀 Төслүүд</button>
+                <button class="tab-btn" data-tab="courses">📚 Хичээлүүд</button>
+            </div>
+
+            <!-- 1. Сайтын Тохиргоо -->
+            <div id="settings" class="tab-content active">
+                <h2>Сайтын Үндсэн Мэдээллэл</h2>
+                <form id="form-settings" class="form-group">
+                    <div class="form-field">
+                        <label>Гол Гарчиг</label>
+                        <input type="text" id="heroTitle" placeholder="Сайн уу, би Bat-Ochir">
+                    </div>
+                    <div class="form-field">
+                        <label>Дэд Гарчиг</label>
+                        <input type="text" id="heroSubtitle" placeholder="Вэб хөгжүүлэгч, Оюутан">
+                    </div>
+                    <div class="form-field">
+                        <label>CV Линк</label>
+                        <input type="url" id="cvUrl" placeholder="https://...">
+                    </div>
+                    <div class="form-field">
+                        <label>Footer Текст</label>
+                        <input type="text" id="footerText" placeholder="© 2026 Bat-Ochir Portfolio">
+                    </div>
+                    <button type="submit" class="btn-save">💾 Хадгалах</button>
+                </form>
+            </div>
+
+            <!-- 2. Ур чадварууд -->
+            <div id="skills" class="tab-content">
+                <h2>Ур чадварууд Удирдах</h2>
+                <form id="form-add-skill" class="form-group">
+                    <h3>Шинэ Ур чадвар нэмэх</h3>
+                    <div class="form-field">
+                        <label>Нэр</label>
+                        <input type="text" id="skill-name" placeholder="React, JavaScript гэх мэт" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Иконка (Emoji/FontAwesome Class)</label>
+                        <input type="text" id="skill-icon" placeholder="⚛️ эсвэл fab fa-react" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Түвшин</label>
+                        <select id="skill-level" required>
+                            <option value="">Сонгох</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-save">➕ Нэмэх</button>
+                </form>
+                <div id="skills-list" class="items-list"></div>
+            </div>
+
+            <!-- 3. Төслүүд -->
+            <div id="projects" class="tab-content">
+                <h2>Төслүүд Удирдах</h2>
+                <form id="form-add-project" class="form-group">
+                    <h3>Шинэ Төсөл нэмэх</h3>
+                    <div class="form-field">
+                        <label>Төслийн Нэр</label>
+                        <input type="text" id="project-title" placeholder="Төслийн нэр" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Богино Тайлбар</label>
+                        <textarea id="project-desc" placeholder="Төслийн тайлбар" required></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label>Зураг URL</label>
+                        <input type="url" id="project-image" placeholder="https://..." required>
+                    </div>
+                    <div class="form-field">
+                        <label>Технологи</label>
+                        <input type="text" id="project-tech" placeholder="React, Firebase, CSS" required>
+                    </div>
+                    <div class="form-field">
+                        <label>GitHub Линк</label>
+                        <input type="url" id="project-github" placeholder="https://github.com/..." required>
+                    </div>
+                    <button type="submit" class="btn-save">➕ Нэмэх</button>
+                </form>
+                <div id="projects-list" class="items-list"></div>
+            </div>
+
+            <!-- 4. Хичээлүүд -->
+            <div id="courses" class="tab-content">
+                <h2>Хичээлүүд Удирдах</h2>
+                <form id="form-add-course" class="form-group">
+                    <h3>Шинэ Хичээл нэмэх</h3>
+                    <div class="form-field">
+                        <label>Хичээлийн Нэр</label>
+                        <input type="text" id="course-name" placeholder="Веб хөгжүүлэлт гэх мэт" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Семестр / Сарын мэдээлэл</label>
+                        <input type="text" id="course-semester" placeholder="2026-1 Улирал" required>
+                    </div>
+                    <button type="submit" class="btn-save">➕ Нэмэх</button>
+                </form>
+                <div id="courses-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="admin.js"></script>
 </body>
