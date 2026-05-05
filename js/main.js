@@ -3,8 +3,6 @@ import {
     auth, onAuthStateChanged 
 } from './firebase.js';
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
-
 // 1. Сайтын тохиргоо (Settings)
 async function initSite() {
     try {
@@ -102,7 +100,7 @@ async function displayCourses() {
 
         snap.forEach(doc => {
             const c = doc.data();
-            const status = c.status || 'Явалцаалж байна';
+            const status = c.status || 'Суралцаж байна';
             const statusColor = status === 'Дууссан' ? '#10b981' : '#f59e0b';
             
             container.innerHTML += `
