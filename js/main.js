@@ -34,12 +34,14 @@ async function displaySkills() {
 
         snap.forEach(doc => {
             const s = doc.data();
+            const imgUrl = s.imageUrl || 'https://via.placeholder.com/320x200?text=Skill';
             container.innerHTML += `
-                <div class="card skill-card" data-id="${doc.id}">
-                    <div class="icon">${s.icon || '⭐'}</div>
-                    <h3>${s.name || 'Skill'}</h3>
-                    <span class="badge">${s.level || 'Unknown'}</span>
-                    <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">${s.description || ''}</p>
+                <div class="card img-card" data-id="${doc.id}">
+                    <img src="${imgUrl}" alt="${s.name || 'Skill'}" onerror="this.src='https://via.placeholder.com/320x200?text=Error'">
+                    <div class="p-content">
+                        <h3>${s.name || 'Skill'}</h3>
+                        <span class="badge">${s.level || 'Unknown'}</span>
+                    </div>
                 </div>`;
         });
     } catch (error) {
@@ -64,7 +66,7 @@ async function displayProjects() {
             const imgUrl = p.imageUrl || 'https://via.placeholder.com/320x200?text=Project';
             
             const card = document.createElement('div');
-            card.className = 'card project-card';
+            card.className = 'card img-card project-card';
             card.style.cursor = 'pointer';
             card.innerHTML = `
                 <img src="${imgUrl}" alt="${p.title || 'Project'}" 
@@ -112,20 +114,24 @@ async function displayCourses() {
             const c = doc.data();
             const status = c.status || 'Суралцаж байна';
             const statusColor = status === 'Дууссан' ? '#10b981' : '#f59e0b';
+            const imgUrl = c.imageUrl || 'https://via.placeholder.com/320x200?text=Course';
             
             container.innerHTML += `
-                <div class="course-item" data-id="${doc.id}">
-                    <h3>${c.name || 'Хичээл'}</h3>
-                    <p style="color: #666; margin: 5px 0; font-size: 0.9rem;">
-                        <strong>Семестр:</strong> ${c.semester || 'Unknown'}
-                    </p>
-                    <p style="color: #666; margin: 5px 0; font-size: 0.9rem;">
-                        <strong>Баллын оноо:</strong> ${c.credits || 0}
-                    </p>
-                    <span style="display: inline-block; background-color: ${statusColor}; color: white; 
-                                 padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; margin-top: 10px;">
-                        ${status}
-                    </span>
+                <div class="card img-card" data-id="${doc.id}">
+                    <img src="${imgUrl}" alt="${c.name || 'Хичээл'}" onerror="this.src='https://via.placeholder.com/320x200?text=Error'">
+                    <div class="p-content">
+                        <h3>${c.name || 'Хичээл'}</h3>
+                        <p style="color: #666; margin: 5px 0; font-size: 0.9rem;">
+                            <strong>Семестр:</strong> ${c.semester || 'Unknown'}
+                        </p>
+                        <p style="color: #666; margin: 5px 0; font-size: 0.9rem;">
+                            <strong>Баллын оноо:</strong> ${c.credits || 0}
+                        </p>
+                        <span style="display: inline-block; background-color: ${statusColor}; color: white; 
+                                     padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; margin-top: auto; align-self: flex-start;">
+                            ${status}
+                        </span>
+                    </div>
                 </div>`;
         });
     } catch (error) {

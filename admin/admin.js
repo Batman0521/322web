@@ -1,6 +1,6 @@
-import { 
+import {
     db, collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc,
-    auth, signInWithEmailAndPassword, onAuthStateChanged, signOut,  storage, ref, uploadBytes, getDownloadURL
+    auth, signInWithEmailAndPassword, onAuthStateChanged, signOut
 } from '../js/firebase.js';
 
 // ============ НЭВТРЭЛТ УДИРДАХ ============
@@ -33,7 +33,7 @@ if (logoutBtn) {
 onAuthStateChanged(auth, (user) => {
     const loginFormDiv = document.getElementById('login-form');
     const adminContent = document.getElementById('admin-content');
-    
+
     if (user) {
         if (loginFormDiv) loginFormDiv.style.display = 'none';
         if (adminContent) adminContent.style.display = 'block';
@@ -52,7 +52,7 @@ tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.remove('active'));
-        
+
         btn.classList.add('active');
         const tabName = btn.getAttribute('data-tab');
         document.getElementById(tabName).classList.add('active');
@@ -109,8 +109,9 @@ async function loadSkills() {
             skillCard.className = 'item-card';
             skillCard.innerHTML = `
                 <div class="item-info">
-                    <h4>${skill.icon} ${skill.name}</h4>
-                    <p>Түвшин: <strong>${skill.level}</strong></p>
+                    <img src="${skill.imageUrl || 'https://via.placeholder.com/50'}" alt="${skill.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+                    <h4 style="display: inline-block; vertical-align: middle;">${skill.name}</h4>
+                    <p style="margin-top: 5px;">Түвшин: <strong>${skill.level}</strong></p>
                 </div>
                 <div class="item-actions">
                     <button class="btn-edit" onclick="editSkill('${doc.id}')">✏️ Засах</button>
@@ -130,7 +131,7 @@ if (skillForm) {
         try {
             await addDoc(collection(db, 'skills'), {
                 name: document.getElementById('skill-name').value,
-                icon: document.getElementById('skill-icon').value,
+                imageUrl: document.getElementById('skill-image').value,
                 level: document.getElementById('skill-level').value,
                 createdAt: new Date()
             });
@@ -160,14 +161,14 @@ window.editSkill = async (id) => {
     if (skillSnap.exists()) {
         const skill = skillSnap.data();
         const newName = prompt('Шинэ нэр:', skill.name);
-        const newIcon = prompt('Шинэ иконка:', skill.icon);
+        const newImage = prompt('Шинэ зураг (URL):', skill.imageUrl);
         const newLevel = prompt('Шинэ түвшин (Beginner/Intermediate/Advanced):', skill.level);
-        
-        if (newName && newIcon && newLevel) {
+
+        if (newName && newImage && newLevel) {
             try {
                 await updateDoc(doc(db, 'skills', id), {
                     name: newName,
-                    icon: newIcon,
+                    imageUrl: newImage,
                     level: newLevel,
                     updatedAt: new Date()
                 });
@@ -183,58 +184,6 @@ window.editSkill = async (id) => {
 // ============ 3. ТӨСЛҮҮД ============
 const projectForm = document.getElementById('form-add-project');
 const projectsList = document.getElementById('projects-list');
-const projectImageFile = document.getElementById('project-image-file');
-const projectImageBase64 = document.getElementById('project-image-base64');
-const projectImagePreview = document.getElementById('project-image-preview');
-
-// Зураг шахах функц (Firestore 1MB хязгаарыг давахгүйн тулд)
-function compressImage(file, maxWidth = 800, quality = 0.7) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                if (width > maxWidth) {
-                    height = Math.round((height * maxWidth) / width);
-                    width = maxWidth;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.onerror = error => reject(error);
-        };
-        reader.onerror = error => reject(error);
-    });
-}
-
-if (projectImageFile) {
-    projectImageFile.addEventListener('change', async function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            try {
-                // Preview-д зориулж шахаж харуулах
-                const base64 = await compressImage(file, 400, 0.6);
-                projectImageBase64.value = base64;
-                projectImagePreview.src = base64;
-                projectImagePreview.style.display = 'block';
-            } catch (err) {
-                console.error("Зураг уншихад алдаа гарлаа", err);
-            }
-        } else {
-            projectImageBase64.value = '';
-            projectImagePreview.src = '';
-            projectImagePreview.style.display = 'none';
-        }
-    });
-}
 
 async function loadProjects() {
     try {
@@ -266,52 +215,23 @@ async function loadProjects() {
 if (projectForm) {
     projectForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const submitBtn = projectForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = '⏳ Түр хүлээнэ үү...';
 
         try {
-            const file = projectImageFile.files[0];
-            let imageUrl = '';
-
-            if (file) {
-                try {
-                    // 1. Firebase Storage рүү хуулахыг оролдох
-                    const imageRef = ref(storage, `projects/${Date.now()}-${file.name}`);
-                    await uploadBytes(imageRef, file);
-                    imageUrl = await getDownloadURL(imageRef);
-                } catch (storageError) {
-                    console.warn("Storage upload амжилтгүй, Base64 рүү хөрвүүлж байна...", storageError);
-                    // 2. Хэрэв Storage тохиргоогүй/алдаа заавал шахагдсан Base64 ашиглах (Firestore хязгаарт багтаана)
-                    imageUrl = await compressImage(file, 800, 0.7);
-                }
-            } else {
-                // Зураг сонгоогүй бол
-                imageUrl = projectImageBase64.value || '';
-            }
-
-            // 3. Firestore руу хадгална
             await addDoc(collection(db, 'projects'), {
                 title: document.getElementById('project-title').value,
                 shortDescription: document.getElementById('project-desc').value,
-                imageUrl: imageUrl,
+                imageUrl: document.getElementById('project-image').value,
                 techStack: document.getElementById('project-tech').value,
                 githubUrl: document.getElementById('project-github').value,
                 createdAt: new Date()
             });
 
             projectForm.reset();
-
-            if (projectImagePreview) {
-                projectImagePreview.src = '';
-                projectImagePreview.style.display = 'none';
-            }
-            if (projectImageBase64) {
-                projectImageBase64.value = '';
-            }
-
             loadProjects();
             alert('✅ Төсөл амжилттай нэмэгдлээ!');
 
@@ -342,11 +262,13 @@ window.editProject = async (id) => {
     if (projSnap.exists()) {
         const proj = projSnap.data();
         const newTitle = prompt('Шинэ нэр:', proj.title);
-        
-        if (newTitle) {
+        const newImage = prompt('Шинэ зураг (URL):', proj.imageUrl);
+
+        if (newTitle && newImage) {
             try {
                 await updateDoc(doc(db, 'projects', id), {
                     title: newTitle,
+                    imageUrl: newImage,
                     updatedAt: new Date()
                 });
                 loadProjects();
@@ -372,8 +294,9 @@ async function loadCourses() {
             courseCard.className = 'item-card';
             courseCard.innerHTML = `
                 <div class="item-info">
-                    <h4>📚 ${course.name}</h4>
-                    <p><strong>Семестр:</strong> ${course.semester}</p>
+                    <img src="${course.imageUrl || 'https://via.placeholder.com/50'}" alt="${course.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+                    <h4 style="display: inline-block; vertical-align: middle;">${course.name}</h4>
+                    <p style="margin-top: 5px;"><strong>Семестр:</strong> ${course.semester}</p>
                 </div>
                 <div class="item-actions">
                     <button class="btn-edit" onclick="editCourse('${doc.id}')">✏️ Засах</button>
@@ -394,6 +317,7 @@ if (courseForm) {
             await addDoc(collection(db, 'courses'), {
                 name: document.getElementById('course-name').value,
                 semester: document.getElementById('course-semester').value,
+                imageUrl: document.getElementById('course-image').value,
                 createdAt: new Date()
             });
             courseForm.reset();
@@ -423,12 +347,14 @@ window.editCourse = async (id) => {
         const course = courseSnap.data();
         const newName = prompt('Шинэ нэр:', course.name);
         const newSemester = prompt('Шинэ семестр:', course.semester);
-        
-        if (newName && newSemester) {
+        const newImage = prompt('Шинэ зураг (URL):', course.imageUrl);
+
+        if (newName && newSemester && newImage) {
             try {
                 await updateDoc(doc(db, 'courses', id), {
                     name: newName,
                     semester: newSemester,
+                    imageUrl: newImage,
                     updatedAt: new Date()
                 });
                 loadCourses();
