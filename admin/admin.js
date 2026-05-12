@@ -1,6 +1,6 @@
 import { 
     db, collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc,
-    auth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+    auth, signInWithEmailAndPassword, onAuthStateChanged, signOut,  storage, ref, uploadBytes, getDownloadURL
 } from '../js/firebase.js';
 
 // ============ НЭВТРЭЛТ УДИРДАХ ============
@@ -236,24 +236,47 @@ async function loadProjects() {
 if (projectForm) {
     projectForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         try {
+            const file = projectImageFile.files[0];
+            let imageUrl = '';
+
+            // 1. Зургийг Firebase Storage рүү upload хийнэ
+            if (file) {
+                const imageRef = ref(storage, `projects/${Date.now()}-${file.name}`);
+                await uploadBytes(imageRef, file);
+                imageUrl = await getDownloadURL(imageRef);
+            }
+
+            // 2. Firestore руу зөвхөн image URL хадгална
             await addDoc(collection(db, 'projects'), {
                 title: document.getElementById('project-title').value,
                 shortDescription: document.getElementById('project-desc').value,
-                imageUrl: document.getElementById('project-image-base64').value,
+                imageUrl: imageUrl,
                 techStack: document.getElementById('project-tech').value,
                 githubUrl: document.getElementById('project-github').value,
+                liveUrl: document.getElementById('project-live') 
+                    ? document.getElementById('project-live').value 
+                    : '',
                 createdAt: new Date()
             });
+
             projectForm.reset();
+
             if (projectImagePreview) {
                 projectImagePreview.src = '';
                 projectImagePreview.style.display = 'none';
+            }
+
+            if (projectImageBase64) {
                 projectImageBase64.value = '';
             }
+
             loadProjects();
             alert('✅ Төсөл амжилттай нэмэгдлээ!');
+
         } catch (error) {
+            console.error(error);
             alert('❌ Алдаа: ' + error.message);
         }
     });
