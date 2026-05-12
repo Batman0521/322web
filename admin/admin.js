@@ -187,17 +187,47 @@ const projectImageFile = document.getElementById('project-image-file');
 const projectImageBase64 = document.getElementById('project-image-base64');
 const projectImagePreview = document.getElementById('project-image-preview');
 
+// Зураг шахах функц (Firestore 1MB хязгаарыг давахгүйн тулд)
+function compressImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
+
 if (projectImageFile) {
-    projectImageFile.addEventListener('change', function(e) {
+    projectImageFile.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                projectImageBase64.value = evt.target.result;
-                projectImagePreview.src = evt.target.result;
+            try {
+                // Preview-д зориулж шахаж харуулах
+                const base64 = await compressImage(file, 400, 0.6);
+                projectImageBase64.value = base64;
+                projectImagePreview.src = base64;
                 projectImagePreview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+            } catch (err) {
+                console.error("Зураг уншихад алдаа гарлаа", err);
+            }
         } else {
             projectImageBase64.value = '';
             projectImagePreview.src = '';
@@ -236,28 +266,39 @@ async function loadProjects() {
 if (projectForm) {
     projectForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const submitBtn = projectForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Түр хүлээнэ үү...';
 
         try {
             const file = projectImageFile.files[0];
             let imageUrl = '';
 
-            // 1. Зургийг Firebase Storage рүү upload хийнэ
             if (file) {
-                const imageRef = ref(storage, `projects/${Date.now()}-${file.name}`);
-                await uploadBytes(imageRef, file);
-                imageUrl = await getDownloadURL(imageRef);
+                try {
+                    // 1. Firebase Storage рүү хуулахыг оролдох
+                    const imageRef = ref(storage, `projects/${Date.now()}-${file.name}`);
+                    await uploadBytes(imageRef, file);
+                    imageUrl = await getDownloadURL(imageRef);
+                } catch (storageError) {
+                    console.warn("Storage upload амжилтгүй, Base64 рүү хөрвүүлж байна...", storageError);
+                    // 2. Хэрэв Storage тохиргоогүй/алдаа заавал шахагдсан Base64 ашиглах (Firestore хязгаарт багтаана)
+                    imageUrl = await compressImage(file, 800, 0.7);
+                }
+            } else {
+                // Зураг сонгоогүй бол
+                imageUrl = projectImageBase64.value || '';
             }
 
-            // 2. Firestore руу зөвхөн image URL хадгална
+            // 3. Firestore руу хадгална
             await addDoc(collection(db, 'projects'), {
                 title: document.getElementById('project-title').value,
                 shortDescription: document.getElementById('project-desc').value,
                 imageUrl: imageUrl,
                 techStack: document.getElementById('project-tech').value,
                 githubUrl: document.getElementById('project-github').value,
-                liveUrl: document.getElementById('project-live') 
-                    ? document.getElementById('project-live').value 
-                    : '',
                 createdAt: new Date()
             });
 
@@ -267,7 +308,6 @@ if (projectForm) {
                 projectImagePreview.src = '';
                 projectImagePreview.style.display = 'none';
             }
-
             if (projectImageBase64) {
                 projectImageBase64.value = '';
             }
@@ -278,6 +318,9 @@ if (projectForm) {
         } catch (error) {
             console.error(error);
             alert('❌ Алдаа: ' + error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
         }
     });
 }
@@ -367,7 +410,7 @@ window.deleteCourse = async (id) => {
         try {
             await deleteDoc(doc(db, 'courses', id));
             loadCourses();
-            alert('✅ Хичээл амжилттай устгагдлээ!');
+            alert('✅ Хичээл амжилттай устгагдлаа!');
         } catch (error) {
             alert('❌ Алдаа: ' + error.message);
         }
