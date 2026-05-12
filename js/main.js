@@ -62,24 +62,34 @@ async function displayProjects() {
         snap.forEach(doc => {
             const p = doc.data();
             const imgUrl = p.imageUrl || 'https://via.placeholder.com/320x200?text=Project';
-            container.innerHTML += `
-                <div class="card project-card" data-id="${doc.id}">
-                    <img src="${imgUrl}" alt="${p.title || 'Project'}" 
-                         onerror="this.src='https://via.placeholder.com/320x200?text=Error'">
-                    <div class="p-content">
-                        <h3>${p.title || 'Төсөл'}</h3>
-                        <p>${p.shortDescription || 'Тайлбар байхгүй'}</p>
-                        <small>
-                            <strong>Технологи:</strong> ${p.techStack || 'Unknown'}
-                        </small>
-                        ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank">
-                            <i class="fab fa-github"></i> Кодыг үзэх
-                        </a>` : ''}
-                        ${p.liveUrl ? `<a href="${p.liveUrl}" target="_blank" style="margin-left: 10px;">
-                            <i class="fas fa-external-link-alt"></i> Live Demo
-                        </a>` : ''}
-                    </div>
-                </div>`;
+            
+            const card = document.createElement('div');
+            card.className = 'card project-card';
+            card.style.cursor = 'pointer';
+            card.innerHTML = `
+                <img src="${imgUrl}" alt="${p.title || 'Project'}" 
+                     onerror="this.src='https://via.placeholder.com/320x200?text=Error'">
+                <div class="p-content">
+                    <h3>${p.title || 'Төсөл'}</h3>
+                    <p>${p.shortDescription || 'Тайлбар байхгүй'}</p>
+                    <small>
+                        <strong>Технологи:</strong> ${p.techStack || 'Unknown'}
+                    </small>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                openProjectModal({
+                    title: p.title || 'Төсөл',
+                    desc: p.shortDescription || 'Тайлбар байхгүй',
+                    img: imgUrl,
+                    tech: p.techStack || 'Unknown',
+                    githubUrl: p.githubUrl,
+                    liveUrl: p.liveUrl
+                });
+            });
+
+            container.appendChild(card);
         });
     } catch (error) {
         console.error('Төслүүд ачаалахад алдаа:', error);
@@ -133,6 +143,33 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// ===== MODAL FUNCTIONS =====
+function openProjectModal(p) {
+    const modal = document.getElementById('project-modal');
+    if (!modal) return;
+    
+    document.getElementById('modal-title').innerText = p.title;
+    document.getElementById('modal-desc').innerText = p.desc;
+    document.getElementById('modal-img').src = p.img;
+    document.querySelector('#modal-tech span').innerText = p.tech;
+    
+    const linksContainer = document.getElementById('modal-links');
+    linksContainer.innerHTML = '';
+    
+    if (p.githubUrl) {
+        linksContainer.innerHTML += `<a href="${p.githubUrl}" target="_blank">
+            <i class="fab fa-github"></i> Кодыг үзэх
+        </a>`;
+    }
+    if (p.liveUrl) {
+        linksContainer.innerHTML += `<a href="${p.liveUrl}" target="_blank">
+            <i class="fas fa-external-link-alt"></i> Live Demo
+        </a>`;
+    }
+    
+    modal.classList.add('show');
+}
+
 // ===== ДУУДЛАГУУД =====
 document.addEventListener('DOMContentLoaded', () => {
     initSite();
@@ -145,6 +182,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Mobile menu
     setupMobileMenu();
+    
+    // Modal events
+    const modal = document.getElementById('project-modal');
+    const closeBtn = document.getElementById('modal-close-btn');
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    }
 });
 
 // Smooth Scroll

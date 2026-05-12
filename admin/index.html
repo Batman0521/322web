@@ -104,8 +104,10 @@
                         <textarea id="project-desc" placeholder="Төслийн тайлбар" required></textarea>
                     </div>
                     <div class="form-field">
-                        <label>Зураг URL</label>
-                        <input type="url" id="project-image" placeholder="https://..." required>
+                        <label>Зураг (Device-с хуулах)</label>
+                        <input type="file" id="project-image-file" accept="image/*" required>
+                        <input type="hidden" id="project-image-base64">
+                        <img id="project-image-preview" src="" style="max-width: 150px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     </div>
                     <div class="form-field">
                         <label>Технологи</label>

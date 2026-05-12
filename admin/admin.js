@@ -183,6 +183,28 @@ window.editSkill = async (id) => {
 // ============ 3. ТӨСЛҮҮД ============
 const projectForm = document.getElementById('form-add-project');
 const projectsList = document.getElementById('projects-list');
+const projectImageFile = document.getElementById('project-image-file');
+const projectImageBase64 = document.getElementById('project-image-base64');
+const projectImagePreview = document.getElementById('project-image-preview');
+
+if (projectImageFile) {
+    projectImageFile.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                projectImageBase64.value = evt.target.result;
+                projectImagePreview.src = evt.target.result;
+                projectImagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            projectImageBase64.value = '';
+            projectImagePreview.src = '';
+            projectImagePreview.style.display = 'none';
+        }
+    });
+}
 
 async function loadProjects() {
     try {
@@ -218,12 +240,17 @@ if (projectForm) {
             await addDoc(collection(db, 'projects'), {
                 title: document.getElementById('project-title').value,
                 shortDescription: document.getElementById('project-desc').value,
-                imageUrl: document.getElementById('project-image').value,
+                imageUrl: document.getElementById('project-image-base64').value,
                 techStack: document.getElementById('project-tech').value,
                 githubUrl: document.getElementById('project-github').value,
                 createdAt: new Date()
             });
             projectForm.reset();
+            if (projectImagePreview) {
+                projectImagePreview.src = '';
+                projectImagePreview.style.display = 'none';
+                projectImageBase64.value = '';
+            }
             loadProjects();
             alert('✅ Төсөл амжилттай нэмэгдлээ!');
         } catch (error) {
