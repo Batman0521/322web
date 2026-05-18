@@ -52,6 +52,10 @@
                         <input type="text" id="heroSubtitle" placeholder="Вэб хөгжүүлэгч, Оюутан">
                     </div>
                     <div class="form-field">
+                        <label>Миний талаар тайлбар</label>
+                        <textarea id="aboutDescription" placeholder="Би ИЗИС-ийн 322-р бүлгийн оюутан..."></textarea>
+                    </div>
+                    <div class="form-field">
                         <label>CV Линк</label>
                         <input type="url" id="cvUrl" placeholder="https://...">
                     </div>
@@ -112,8 +116,12 @@
                         <input type="text" id="project-tech" placeholder="React, Firebase, CSS" required>
                     </div>
                     <div class="form-field">
-                        <label>GitHub Линк</label>
-                        <input type="url" id="project-github" placeholder="https://github.com/..." required>
+                        <label>GitHub Линк (Заавал биш)</label>
+                        <input type="url" id="project-github" placeholder="https://github.com/...">
+                    </div>
+                    <div class="form-field">
+                        <label>Live Demo Линк (Заавал биш)</label>
+                        <input type="url" id="project-live" placeholder="https://...">
                     </div>
                     <button type="submit" class="btn-save">➕ Нэмэх</button>
                 </form>
@@ -132,6 +140,17 @@
                     <div class="form-field">
                         <label>Семестр / Сарын мэдээлэл</label>
                         <input type="text" id="course-semester" placeholder="2026-1 Улирал" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Баллын оноо (Credits)</label>
+                        <input type="number" id="course-credits" placeholder="3" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Төлөв</label>
+                        <select id="course-status" required>
+                            <option value="Суралцаж байна">Суралцаж байна</option>
+                            <option value="Дууссан">Дууссан</option>
+                        </select>
                     </div>
                     <div class="form-field">
                         <label>Зураг URL</label>

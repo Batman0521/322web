@@ -69,6 +69,7 @@ async function loadSettings() {
             const data = docSnap.data();
             document.getElementById('heroTitle').value = data.heroTitle || '';
             document.getElementById('heroSubtitle').value = data.heroSubtitle || '';
+            document.getElementById('aboutDescription').value = data.aboutDescription || '';
             document.getElementById('cvUrl').value = data.cvUrl || '';
             document.getElementById('footerText').value = data.footerText || '';
         }
@@ -84,6 +85,7 @@ if (settingsForm) {
             await updateDoc(doc(db, 'siteSettings', 'main'), {
                 heroTitle: document.getElementById('heroTitle').value,
                 heroSubtitle: document.getElementById('heroSubtitle').value,
+                aboutDescription: document.getElementById('aboutDescription').value,
                 cvUrl: document.getElementById('cvUrl').value,
                 footerText: document.getElementById('footerText').value,
                 updatedAt: new Date()
@@ -198,7 +200,10 @@ async function loadProjects() {
                     <h4>🚀 ${project.title}</h4>
                     <p>${project.shortDescription}</p>
                     <p><strong>Технологи:</strong> ${project.techStack}</p>
-                    <p><a href="${project.githubUrl}" target="_blank">GitHub →</a></p>
+                    <p style="margin-top: 8px;">
+                        ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" style="margin-right: 10px; color: var(--dark-light); text-decoration: none;"><i class="fab fa-github"></i> GitHub</a>` : ''}
+                        ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-external-link-alt"></i> Live Demo</a>` : ''}
+                    </p>
                 </div>
                 <div class="item-actions">
                     <button class="btn-edit" onclick="editProject('${doc.id}')">✏️ Засах</button>
@@ -228,6 +233,7 @@ if (projectForm) {
                 imageUrl: document.getElementById('project-image').value,
                 techStack: document.getElementById('project-tech').value,
                 githubUrl: document.getElementById('project-github').value,
+                liveUrl: document.getElementById('project-live').value,
                 createdAt: new Date()
             });
 
@@ -293,10 +299,16 @@ async function loadCourses() {
             const courseCard = document.createElement('div');
             courseCard.className = 'item-card';
             courseCard.innerHTML = `
-                <div class="item-info">
-                    <img src="${course.imageUrl || 'https://via.placeholder.com/50'}" alt="${course.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
-                    <h4 style="display: inline-block; vertical-align: middle;">${course.name}</h4>
-                    <p style="margin-top: 5px;"><strong>Семестр:</strong> ${course.semester}</p>
+                <div class="item-info" style="display: flex; align-items: center;">
+                    <img src="${course.imageUrl || 'https://via.placeholder.com/50'}" alt="${course.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
+                    <div>
+                        <h4 style="margin: 0 0 5px 0;">${course.name}</h4>
+                        <p style="margin: 0; font-size: 0.9rem;">
+                            <strong>Семестр:</strong> ${course.semester} | 
+                            <strong>Оноо:</strong> ${course.credits || 0} | 
+                            <strong>Төлөв:</strong> ${course.status || 'Суралцаж байна'}
+                        </p>
+                    </div>
                 </div>
                 <div class="item-actions">
                     <button class="btn-edit" onclick="editCourse('${doc.id}')">✏️ Засах</button>
@@ -317,6 +329,8 @@ if (courseForm) {
             await addDoc(collection(db, 'courses'), {
                 name: document.getElementById('course-name').value,
                 semester: document.getElementById('course-semester').value,
+                credits: parseInt(document.getElementById('course-credits').value) || 0,
+                status: document.getElementById('course-status').value,
                 imageUrl: document.getElementById('course-image').value,
                 createdAt: new Date()
             });
